@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "lldb": {
+      "command": "uv",
+      "args": ["run", "lldb-mcp"],
+      "env": {}
+    }
+  }
+}
