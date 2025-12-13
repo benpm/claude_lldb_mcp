@@ -62,7 +62,24 @@ winget install LLVM.LLVM
 
 ## Installation
 
-### Option 1: Install from source
+### Quick Start (Recommended)
+380. 
+381. We provide a setup script that installs all dependencies and verifies the installation.
+382. 
+383. ```bash
+384. # Make the script executable
+385. chmod +x setup_for_copilot.sh
+386. 
+387. # Run the setup script
+388. ./setup_for_copilot.sh
+389. ```
+390. 
+391. This script will:
+392. 1. Check for Python 3 and pip
+393. 2. Install required Python packages (`mcp[cli]`, `pydantic`, `httpx`)
+394. 3. Verify the installation by running tests
+395. 
+396. ### Option 1: Install from source
 
 ```bash
 # Clone the repository
@@ -81,7 +98,19 @@ pip install "mcp[cli]" pydantic httpx
 
 ## Configuration for Claude Code
 
-Add the following to your Claude Code MCP configuration file:
+### Automatic Configuration
+397. 
+398. You can easily add the server to Claude Code using the `mcp add` command:
+399. 
+400. ```bash
+401. claude mcp add lldb python3 /path/to/lldb-mcp/lldb_mcp_server.py
+402. ```
+403. 
+404. Replace `/path/to/lldb-mcp` with the actual path to the repository.
+405. 
+406. ### Manual Configuration
+407. 
+408. Add the following to your Claude Code MCP configuration file:
 
 ### Location of config file:
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`

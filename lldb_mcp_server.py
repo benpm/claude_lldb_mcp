@@ -64,6 +64,7 @@ def _get_next_session_id() -> str:
 
 def _run_lldb_command(command: str, target: Optional[str] = None, 
                        args: Optional[List[str]] = None,
+                       working_dir: Optional[str] = None,
                        timeout: int = 30) -> Dict[str, Any]:
     """
     Execute an LLDB command and return the output.
@@ -88,7 +89,7 @@ def _run_lldb_command(command: str, target: Optional[str] = None,
             capture_output=True,
             text=True,
             timeout=timeout,
-            cwd=os.getcwd()
+            cwd=working_dir or os.getcwd()
         )
         return {
             "success": result.returncode == 0,
@@ -219,6 +220,10 @@ class AnalyzeCrashInput(BaseModel):
         default=ResponseFormat.MARKDOWN,
         description="Output format: 'markdown' for human-readable or 'json' for structured data"
     )
+    working_dir: Optional[str] = Field(
+        default=None,
+        description="Working directory for the analysis"
+    )
 
 
 class SetBreakpointInput(BaseModel):
@@ -238,6 +243,10 @@ class SetBreakpointInput(BaseModel):
     condition: Optional[str] = Field(
         default=None,
         description="Conditional expression for the breakpoint (e.g., 'i > 10')"
+    )
+    working_dir: Optional[str] = Field(
+        default=None,
+        description="Working directory for the session"
     )
 
 
@@ -664,7 +673,8 @@ async def lldb_run_command(params: RunCommandInput) -> str:
     """
     result = _run_lldb_command(
         params.command,
-        target=params.target
+        target=params.target,
+        working_dir=params.working_dir
     )
     
     if result["success"]:
@@ -712,7 +722,7 @@ async def lldb_analyze_crash(params: AnalyzeCrashInput) -> str:
         "image list"
     ])
     
-    result = _run_lldb_script(commands)
+    result = _run_lldb_script(commands, working_dir=params.working_dir)
     
     if params.response_format == ResponseFormat.JSON:
         return json.dumps({
@@ -790,7 +800,7 @@ async def lldb_set_breakpoint(params: SetBreakpointInput) -> str:
     commands.append(bp_cmd)
     commands.append("breakpoint list")
     
-    result = _run_lldb_script(commands)
+    result = _run_lldb_script(commands, working_dir=params.working_dir)
     
     if result["success"]:
         return f"**Breakpoint set successfully**\n\n```\n{result['output']}\n```"
