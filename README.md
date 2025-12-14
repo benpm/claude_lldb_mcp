@@ -44,17 +44,20 @@ This server exposes LLDB debugging capabilities through well-defined MCP tools:
 ### Installing LLDB
 
 **Ubuntu/Debian:**
+
 ```bash
 sudo apt install lldb
 ```
 
 **macOS:**
+
 ```bash
 # LLDB comes with Xcode Command Line Tools
 xcode-select --install
 ```
 
 **Windows:**
+
 ```bash
 # Install via LLVM releases or Visual Studio
 winget install LLVM.LLVM
@@ -63,23 +66,23 @@ winget install LLVM.LLVM
 ## Installation
 
 ### Quick Start (Recommended)
-380. 
-381. We provide a setup script that installs all dependencies and verifies the installation.
-382. 
+380.
+1. We provide a setup script that installs all dependencies and verifies the installation.
+382.
 383. ```bash
-384. # Make the script executable
-385. chmod +x setup_for_copilot.sh
-386. 
-387. # Run the setup script
-388. ./setup_for_copilot.sh
+2. # Make the script executable
+3. chmod +x setup_for_copilot.sh
+386.
+4. # Run the setup script
+5. ./setup_for_copilot.sh
 389. ```
-390. 
-391. This script will:
-392. 1. Check for Python 3 and pip
-393. 2. Install required Python packages (`mcp[cli]`, `pydantic`, `httpx`)
-394. 3. Verify the installation by running tests
-395. 
-396. ### Option 1: Install from source
+390.
+6. This script will:
+1. 1. Check for Python 3 and pip
+1. 2. Install required Python packages (`mcp[cli]`, `pydantic`, `httpx`)
+1. 3. Verify the installation by running tests
+395.
+7. ### Option 1: Install from source
 
 ```bash
 # Clone the repository
@@ -99,25 +102,23 @@ pip install "mcp[cli]" pydantic httpx
 ## Configuration for Claude Code
 
 ### Automatic Configuration
-397. 
-398. You can easily add the server to Claude Code using the `mcp add` command:
-399. 
-400. ```bash
-401. claude mcp add lldb python3 /path/to/lldb-mcp/lldb_mcp_server.py
-402. ```
-403. 
-404. Replace `/path/to/lldb-mcp` with the actual path to the repository.
-405. 
-406. ### Manual Configuration
-407. 
-408. Add the following to your Claude Code MCP configuration file:
+You can easily add the server to Claude Code using the `mcp add` command:
 
-### Location of config file:
+```bash
+claude mcp add lldb python3 /path/to/lldb-mcp/lldb_mcp_server.py
+```
+
+Replace `/path/to/lldb-mcp` with the actual path to the repository.
+
+### Manual Configuration
+Add the following to your Claude Code MCP configuration file:
+
+### Location of config file
 - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-### Configuration:
+### Configuration
 
 ```json
 {
@@ -142,7 +143,7 @@ Or if installed as a package:
 }
 ```
 
-### Using uvx (recommended for isolation):
+### Using uvx (recommended for isolation)
 
 ```json
 {
@@ -333,7 +334,7 @@ Look up symbols.
 LLDB 18+ has built-in MCP support. To use it instead:
 
 1. Start LLDB and enable MCP:
-   ```
+   ```text
    (lldb) protocol-server start MCP listen://localhost:59999
    ```
 
@@ -377,6 +378,7 @@ ruff format lldb_mcp_server.py
 ### "LLDB executable not found"
 
 Ensure LLDB is installed and in your PATH:
+
 ```bash
 which lldb
 lldb --version
@@ -385,6 +387,7 @@ lldb --version
 ### Permission denied on core files
 
 On Linux, enable core dumps:
+
 ```bash
 ulimit -c unlimited
 sudo sysctl -w kernel.core_pattern=core.%p
@@ -393,6 +396,7 @@ sudo sysctl -w kernel.core_pattern=core.%p
 ### Debugger can't find symbols
 
 Compile your programs with debug info:
+
 ```bash
 g++ -g -O0 myprogram.cpp -o myprogram
 clang++ -g -O0 myprogram.cpp -o myprogram
