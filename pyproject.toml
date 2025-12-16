@@ -4,14 +4,14 @@ build-backend = "hatchling.build"
 
 [project]
 name = "lldb-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "MCP server for LLDB debugger integration with AI assistants"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 keywords = ["lldb", "debugger", "mcp", "model-context-protocol", "claude"]
 authors = [
-    { name = "Your Name", email = "you@example.com" }
+    { name = "Benjamin Mastripolito", email = "you@example.com" }
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -43,10 +43,10 @@ dev = [
 lldb-mcp = "lldb_mcp_server:mcp.run"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/lldb-mcp"
-Documentation = "https://github.com/yourusername/lldb-mcp#readme"
-Repository = "https://github.com/yourusername/lldb-mcp"
-Issues = "https://github.com/yourusername/lldb-mcp/issues"
+Homepage = "https://github.com/benpm/lldb-mcp"
+Documentation = "https://github.com/benpm/lldb-mcp#readme"
+Repository = "https://github.com/benpm/lldb-mcp"
+Issues = "https://github.com/benpm/lldb-mcp/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["."]
