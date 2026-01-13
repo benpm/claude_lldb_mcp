@@ -1,3 +1,5 @@
+<img width="128" height="128" alt="claude_lldb_mcp" src="https://github.com/user-attachments/assets/106576ab-f3a5-43cb-a40f-5ad5ac561204" />
+
 # LLDB MCP Server
 
 An MCP (Model Context Protocol) server that provides structured debugging tools for LLDB, designed for use with Claude Code and other MCP-compatible AI assistants.
