@@ -2,6 +2,8 @@
 
 # LLDB MCP Server
 
+[![CI](https://github.com/benpm/claude_lldb_mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/benpm/claude_lldb_mcp/actions/workflows/ci.yml)
+
 An MCP (Model Context Protocol) server that provides structured debugging tools for LLDB, designed for use with Claude Code and other MCP-compatible AI assistants.
 
 ## Features

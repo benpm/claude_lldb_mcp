@@ -1,0 +1,125 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint:
+    name: Lint (ruff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: uv sync --extra dev
+
+      - run: uv run ruff check lldb_mcp_server.py
+
+      - run: uv run ruff format --check lldb_mcp_server.py
+
+  typecheck:
+    name: Type Check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: uv sync --extra dev
+
+      - run: uv run mypy lldb_mcp_server.py
+
+  test-linux:
+    name: Test (Ubuntu)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LLVM + clang
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm clang lldb
+
+      - name: Verify tools
+        run: |
+          lldb --version
+          clang++ --version
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: uv sync --extra dev
+
+      - name: Compile test fixtures
+        run: |
+          clang++ -g -O0 -o test_fixtures/simple    test_fixtures/simple.cpp
+          clang++ -g -O0 -o test_fixtures/variables test_fixtures/variables.cpp
+          clang++ -g -O0 -o test_fixtures/multifile \
+            test_fixtures/multifile_main.cpp \
+            test_fixtures/multifile_helper.cpp
+
+      - name: Run tests
+        run: uv run pytest -v
+
+  test-windows:
+    name: Test (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install LLVM via winget
+        shell: pwsh
+        run: |
+          winget install --id LLVM.LLVM --exact --silent `
+            --accept-package-agreements --accept-source-agreements
+          "C:\Program Files\LLVM\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Verify tools
+        shell: bash
+        run: |
+          lldb --version
+          clang++ --version
+
+      - uses: astral-sh/setup-uv@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: uv sync --extra dev
+
+      - name: Compile test fixtures
+        shell: bash
+        run: |
+          clang++ -g -O0 -o test_fixtures/simple.exe    test_fixtures/simple.cpp
+          clang++ -g -O0 -o test_fixtures/variables.exe test_fixtures/variables.cpp
+          clang++ -g -O0 -o test_fixtures/multifile.exe \
+            test_fixtures/multifile_main.cpp \
+            test_fixtures/multifile_helper.cpp
+
+      - name: Run tests
+        shell: bash
+        run: uv run pytest -v
