@@ -8,11 +8,12 @@ import asyncio
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 # Test fixtures directory
 FIXTURES_DIR = Path(__file__).parent
-SIMPLE_EXE = FIXTURES_DIR / "simple"
+SIMPLE_EXE = FIXTURES_DIR / ("simple.exe" if sys.platform == "win32" else "simple")
 SERVER_PATH = FIXTURES_DIR.parent / "lldb_mcp_server.py"
 
 
@@ -148,7 +149,6 @@ async def test_breakpoint_from_different_dirs():
     """Test breakpoints work when called from different directories."""
     print_header("Test: Breakpoint from Different Working Directories")
 
-    import tempfile
     dirs_to_test = [
         (tempfile.gettempdir(), "tmp"),
         (str(Path.home()), "home"),
@@ -199,7 +199,7 @@ async def test_file_line_breakpoints():
 
     all_passed = True
     for file_path, line, desc in tests:
-        cwd = str(FIXTURES_DIR) if not file_path.startswith("/") else None
+        cwd = str(FIXTURES_DIR) if not Path(file_path).is_absolute() else None
 
         result = subprocess.run(
             [
