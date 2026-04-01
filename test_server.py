@@ -28,7 +28,7 @@ def test_server_creation():
 
     mcp = lldb_mcp_server.mcp
     assert mcp is not None
-    assert mcp.name == "lldb"
+    assert mcp.name == "lldb_mcp"
 
 
 def test_tools_registered():

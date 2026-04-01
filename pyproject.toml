@@ -67,3 +67,4 @@ warn_unused_configs = true
 
 [tool.pytest.ini_options]
 testpaths = ["."]
+asyncio_mode = "auto"

@@ -28,7 +28,8 @@ from pathlib import Path
 from typing import Any
 
 from mcp.server.fastmcp import FastMCP
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from mcp.types import ToolAnnotations
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 # =============================================================================
 # Server Configuration
@@ -408,7 +409,7 @@ class AttachProcessInput(BaseModel):
 
     @field_validator("name")
     @classmethod
-    def validate_pid_or_name(cls, v, info):
+    def validate_pid_or_name(cls, v: str | None, info: ValidationInfo) -> str | None:
         if v is None and info.data.get("pid") is None:
             raise ValueError("Either 'pid' or 'name' must be provided")
         return v
@@ -491,13 +492,13 @@ def _parse_backtrace(output: str) -> list[dict[str, Any]]:
 
 @mcp.tool(
     name="lldb_run_command",
-    annotations={
-        "title": "Run LLDB Command",
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "idempotentHint": False,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Run LLDB Command",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    ),
 )
 async def lldb_run_command(params: RunCommandInput) -> str:
     """Execute an arbitrary LLDB command and return the output.
@@ -528,13 +529,13 @@ async def lldb_run_command(params: RunCommandInput) -> str:
 
 @mcp.tool(
     name="lldb_analyze_crash",
-    annotations={
-        "title": "Analyze Crash Dump",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Analyze Crash Dump",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_analyze_crash(params: AnalyzeCrashInput) -> str:
     """Analyze a crashed program or core dump to determine the cause.
@@ -595,13 +596,13 @@ async def lldb_analyze_crash(params: AnalyzeCrashInput) -> str:
 
 @mcp.tool(
     name="lldb_set_breakpoint",
-    annotations={
-        "title": "Set Breakpoint",
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "idempotentHint": False,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Set Breakpoint",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    ),
 )
 async def lldb_set_breakpoint(params: SetBreakpointInput) -> str:
     """Set a breakpoint in a program.
@@ -650,13 +651,13 @@ async def lldb_set_breakpoint(params: SetBreakpointInput) -> str:
 
 @mcp.tool(
     name="lldb_examine_variables",
-    annotations={
-        "title": "Examine Variables",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Examine Variables",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_examine_variables(params: ExamineVariablesInput) -> str:
     """Examine local variables and arguments at a breakpoint.
@@ -710,13 +711,13 @@ async def lldb_examine_variables(params: ExamineVariablesInput) -> str:
 
 @mcp.tool(
     name="lldb_disassemble",
-    annotations={
-        "title": "Disassemble Code",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Disassemble Code",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_disassemble(params: DisassembleInput) -> str:
     """Disassemble machine code to view assembly instructions.
@@ -767,13 +768,13 @@ async def lldb_disassemble(params: DisassembleInput) -> str:
 
 @mcp.tool(
     name="lldb_read_memory",
-    annotations={
-        "title": "Read Memory",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Read Memory",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_read_memory(params: ReadMemoryInput) -> str:
     """Read and display memory contents at a specified address.
@@ -814,13 +815,13 @@ async def lldb_read_memory(params: ReadMemoryInput) -> str:
 
 @mcp.tool(
     name="lldb_evaluate",
-    annotations={
-        "title": "Evaluate Expression",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Evaluate Expression",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_evaluate(params: EvaluateExpressionInput) -> str:
     """Evaluate a C/C++ expression in the debugger context.
@@ -854,13 +855,13 @@ async def lldb_evaluate(params: EvaluateExpressionInput) -> str:
 
 @mcp.tool(
     name="lldb_backtrace",
-    annotations={
-        "title": "Get Backtrace",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Get Backtrace",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_backtrace(params: BacktraceInput) -> str:
     """Get a stack backtrace showing the call chain.
@@ -913,13 +914,13 @@ async def lldb_backtrace(params: BacktraceInput) -> str:
 
 @mcp.tool(
     name="lldb_source",
-    annotations={
-        "title": "List Source Code",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="List Source Code",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_source(params: ListSourceInput) -> str:
     """List source code for a file, function, or current location.
@@ -956,13 +957,13 @@ async def lldb_source(params: ListSourceInput) -> str:
 
 @mcp.tool(
     name="lldb_symbols",
-    annotations={
-        "title": "Lookup Symbols",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Lookup Symbols",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_symbols(params: SymbolLookupInput) -> str:
     """Look up symbols (functions, variables, types) in an executable.
@@ -999,13 +1000,13 @@ async def lldb_symbols(params: SymbolLookupInput) -> str:
 
 @mcp.tool(
     name="lldb_registers",
-    annotations={
-        "title": "View Registers",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="View Registers",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_registers(params: RegistersInput) -> str:
     """View CPU register values at a breakpoint.
@@ -1049,13 +1050,13 @@ async def lldb_registers(params: RegistersInput) -> str:
 
 @mcp.tool(
     name="lldb_watchpoint",
-    annotations={
-        "title": "Set Watchpoint",
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "idempotentHint": False,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Set Watchpoint",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=False,
+    ),
 )
 async def lldb_watchpoint(params: WatchpointInput) -> str:
     """Set a watchpoint to break when a variable is accessed.
@@ -1095,13 +1096,13 @@ async def lldb_watchpoint(params: WatchpointInput) -> str:
 
 @mcp.tool(
     name="lldb_run",
-    annotations={
-        "title": "Run Program",
-        "readOnlyHint": False,
-        "destructiveHint": False,
-        "idempotentHint": False,
-        "openWorldHint": True,
-    },
+    annotations=ToolAnnotations(
+        title="Run Program",
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=False,
+        openWorldHint=True,
+    ),
 )
 async def lldb_run(params: RunProgramInput) -> str:
     """Run a program under the debugger with optional breakpoints.
@@ -1152,13 +1153,13 @@ async def lldb_run(params: RunProgramInput) -> str:
 
 @mcp.tool(
     name="lldb_threads",
-    annotations={
-        "title": "Examine Threads",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="Examine Threads",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_threads(params: ThreadsInput) -> str:
     """List all threads and their current state.
@@ -1200,13 +1201,13 @@ async def lldb_threads(params: ThreadsInput) -> str:
 
 @mcp.tool(
     name="lldb_images",
-    annotations={
-        "title": "List Loaded Images",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="List Loaded Images",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_images(params: ImageListInput) -> str:
     """List loaded executable images and shared libraries.
@@ -1241,13 +1242,13 @@ async def lldb_images(params: ImageListInput) -> str:
 
 @mcp.tool(
     name="lldb_help",
-    annotations={
-        "title": "LLDB Help",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="LLDB Help",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_help(topic: str = "") -> str:
     """Get help on LLDB commands and usage.
@@ -1274,13 +1275,13 @@ async def lldb_help(topic: str = "") -> str:
 
 @mcp.tool(
     name="lldb_version",
-    annotations={
-        "title": "LLDB Version",
-        "readOnlyHint": True,
-        "destructiveHint": False,
-        "idempotentHint": True,
-        "openWorldHint": False,
-    },
+    annotations=ToolAnnotations(
+        title="LLDB Version",
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=False,
+    ),
 )
 async def lldb_version() -> str:
     """Get LLDB version information.
