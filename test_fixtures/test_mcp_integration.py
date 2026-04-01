@@ -43,10 +43,7 @@ async def call_mcp_tool(tool_name, arguments, cwd=None):
         "jsonrpc": "2.0",
         "id": 1,
         "method": "tools/call",
-        "params": {
-            "name": tool_name,
-            "arguments": arguments
-        }
+        "params": {"name": tool_name, "arguments": arguments},
     }
 
     request_json = json.dumps(request)
@@ -59,19 +56,20 @@ async def call_mcp_tool(tool_name, arguments, cwd=None):
         "params": {
             "protocolVersion": "2024-11-05",
             "capabilities": {},
-            "clientInfo": {"name": "test", "version": "1.0.0"}
-        }
+            "clientInfo": {"name": "test", "version": "1.0.0"},
+        },
     }
 
     init_json = json.dumps(init_request)
 
     # Run the MCP server as a subprocess
     proc = await asyncio.create_subprocess_exec(
-        sys.executable, str(SERVER_PATH),
+        sys.executable,
+        str(SERVER_PATH),
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
-        cwd=cwd
+        cwd=cwd,
     )
 
     try:
@@ -82,23 +80,12 @@ async def call_mcp_tool(tool_name, arguments, cwd=None):
 
         full_input = (init_msg + tool_msg).encode()
 
-        stdout, stderr = await asyncio.wait_for(
-            proc.communicate(input=full_input),
-            timeout=30.0
-        )
+        stdout, stderr = await asyncio.wait_for(proc.communicate(input=full_input), timeout=30.0)
 
-        return {
-            "stdout": stdout.decode(),
-            "stderr": stderr.decode(),
-            "returncode": proc.returncode
-        }
+        return {"stdout": stdout.decode(), "stderr": stderr.decode(), "returncode": proc.returncode}
     except asyncio.TimeoutError:
         proc.kill()
-        return {
-            "stdout": "",
-            "stderr": "Timeout",
-            "returncode": -1
-        }
+        return {"stdout": "", "stderr": "Timeout", "returncode": -1}
 
 
 async def test_direct_lldb():
@@ -107,38 +94,49 @@ async def test_direct_lldb():
 
     # Test 1: Basic LLDB command
     result = subprocess.run(
-        ["lldb", "--batch", "-o", "version"],
-        capture_output=True,
-        text=True,
-        timeout=10
+        ["lldb", "--batch", "-o", "version"], capture_output=True, text=True, timeout=10
     )
     passed = result.returncode == 0 and "lldb" in result.stdout.lower()
     print_test("LLDB version command", passed, result.stdout[:100])
 
     # Test 2: Set breakpoint on our test executable
     result = subprocess.run(
-        ["lldb", "--batch",
-         "-o", f"target create {SIMPLE_EXE}",
-         "-o", "breakpoint set --name main",
-         "-o", "breakpoint list"],
+        [
+            "lldb",
+            "--batch",
+            "-o",
+            f"target create {SIMPLE_EXE}",
+            "-o",
+            "breakpoint set --name main",
+            "-o",
+            "breakpoint list",
+        ],
         capture_output=True,
         text=True,
-        timeout=10
+        timeout=10,
     )
     passed = "Breakpoint 1" in result.stdout
     print_test("LLDB breakpoint on main", passed, result.stdout[:200])
 
     # Test 3: Run to breakpoint
     result = subprocess.run(
-        ["lldb", "--batch",
-         "-o", f"target create {SIMPLE_EXE}",
-         "-o", "breakpoint set --name main",
-         "-o", "run",
-         "-o", "bt",
-         "-o", "quit"],
+        [
+            "lldb",
+            "--batch",
+            "-o",
+            f"target create {SIMPLE_EXE}",
+            "-o",
+            "breakpoint set --name main",
+            "-o",
+            "run",
+            "-o",
+            "bt",
+            "-o",
+            "quit",
+        ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
     )
     passed = "main" in result.stdout and ("frame" in result.stdout.lower() or "#" in result.stdout)
     print_test("LLDB run to breakpoint", passed, result.stdout[:300])
@@ -150,10 +148,10 @@ async def test_breakpoint_from_different_dirs():
     """Test breakpoints work when called from different directories."""
     print_header("Test: Breakpoint from Different Working Directories")
 
+    import tempfile
     dirs_to_test = [
-        ("/tmp", "tmp"),
+        (tempfile.gettempdir(), "tmp"),
         (str(Path.home()), "home"),
-        ("/var", "var"),
         (str(FIXTURES_DIR), "fixtures"),
     ]
 
@@ -165,14 +163,20 @@ async def test_breakpoint_from_different_dirs():
 
         # Call LLDB directly from the different directory
         result = subprocess.run(
-            ["lldb", "--batch",
-             "-o", f"target create {SIMPLE_EXE}",
-             "-o", "breakpoint set --name add",
-             "-o", "breakpoint list"],
+            [
+                "lldb",
+                "--batch",
+                "-o",
+                f"target create {SIMPLE_EXE}",
+                "-o",
+                "breakpoint set --name add",
+                "-o",
+                "breakpoint list",
+            ],
             capture_output=True,
             text=True,
             timeout=10,
-            cwd=test_dir
+            cwd=test_dir,
         )
         passed = "Breakpoint 1" in result.stdout and "add" in result.stdout
         print_test(f"Breakpoint from {name} ({test_dir})", passed, result.stdout[:150])
@@ -198,14 +202,20 @@ async def test_file_line_breakpoints():
         cwd = str(FIXTURES_DIR) if not file_path.startswith("/") else None
 
         result = subprocess.run(
-            ["lldb", "--batch",
-             "-o", f"target create {SIMPLE_EXE}",
-             "-o", f"breakpoint set --file {file_path} --line {line}",
-             "-o", "breakpoint list"],
+            [
+                "lldb",
+                "--batch",
+                "-o",
+                f"target create {SIMPLE_EXE}",
+                "-o",
+                f"breakpoint set --file {file_path} --line {line}",
+                "-o",
+                "breakpoint list",
+            ],
             capture_output=True,
             text=True,
             timeout=10,
-            cwd=cwd
+            cwd=cwd,
         )
         passed = "Breakpoint 1" in result.stdout
         print_test(f"File:Line - {desc}", passed, result.stdout[:150])
@@ -213,17 +223,23 @@ async def test_file_line_breakpoints():
 
     # Test from different directory with absolute path
     result = subprocess.run(
-        ["lldb", "--batch",
-         "-o", f"target create {SIMPLE_EXE}",
-         "-o", f"breakpoint set --file {source_file} --line 6",
-         "-o", "breakpoint list"],
+        [
+            "lldb",
+            "--batch",
+            "-o",
+            f"target create {SIMPLE_EXE}",
+            "-o",
+            f"breakpoint set --file {source_file} --line 6",
+            "-o",
+            "breakpoint list",
+        ],
         capture_output=True,
         text=True,
         timeout=10,
-        cwd="/tmp"
+        cwd=tempfile.gettempdir(),
     )
     passed = "Breakpoint 1" in result.stdout
-    print_test("File:Line from /tmp with absolute path", passed, result.stdout[:150])
+    print_test("File:Line from temp dir with absolute path", passed, result.stdout[:150])
     all_passed = all_passed and passed
 
     return all_passed
@@ -244,29 +260,19 @@ async def test_mcp_server_tool_call():
     )
 
     # Test 1: Set breakpoint via MCP tool
-    params = SetBreakpointInput(
-        executable=str(SIMPLE_EXE),
-        location="main"
-    )
+    params = SetBreakpointInput(executable=str(SIMPLE_EXE), location="main")
     result = await lldb_set_breakpoint(params)
     passed = "Breakpoint" in result and "main" in result
     print_test("MCP lldb_set_breakpoint (function)", passed, result[:200])
 
     # Test 2: Set breakpoint with file:line
-    params = SetBreakpointInput(
-        executable=str(SIMPLE_EXE),
-        location=f"{FIXTURES_DIR}/simple.cpp:6"
-    )
+    params = SetBreakpointInput(executable=str(SIMPLE_EXE), location=f"{FIXTURES_DIR}/simple.cpp:6")
     result = await lldb_set_breakpoint(params)
     passed = "Breakpoint" in result
     print_test("MCP lldb_set_breakpoint (file:line)", passed, result[:200])
 
     # Test 3: Run with breakpoints
-    params = RunProgramInput(
-        executable=str(SIMPLE_EXE),
-        breakpoints=["main"],
-        stop_at_entry=True
-    )
+    params = RunProgramInput(executable=str(SIMPLE_EXE), breakpoints=["main"], stop_at_entry=True)
     result = await lldb_run(params)
     passed = "main" in result.lower() or "frame" in result.lower()
     print_test("MCP lldb_run with breakpoint", passed, result[:300])
@@ -275,10 +281,12 @@ async def test_mcp_server_tool_call():
     params = RunProgramInput(
         executable=str(SIMPLE_EXE),
         breakpoints=[f"{FIXTURES_DIR}/simple.cpp:19"],
-        stop_at_entry=False
+        stop_at_entry=False,
     )
     result = await lldb_run(params)
-    passed = "frame" in result.lower() or "thread" in result.lower() or "backtrace" in result.lower()
+    passed = (
+        "frame" in result.lower() or "thread" in result.lower() or "backtrace" in result.lower()
+    )
     print_test("MCP lldb_run with file:line breakpoint", passed, result[:300])
 
     return passed
@@ -290,20 +298,29 @@ async def test_breakpoint_actually_stops():
 
     # Run program with breakpoint and check that we can see local variables
     result = subprocess.run(
-        ["lldb", "--batch",
-         "-o", f"target create {SIMPLE_EXE}",
-         "-o", "breakpoint set --name add",
-         "-o", "run",
-         "-o", "frame variable",
-         "-o", "quit"],
+        [
+            "lldb",
+            "--batch",
+            "-o",
+            f"target create {SIMPLE_EXE}",
+            "-o",
+            "breakpoint set --name add",
+            "-o",
+            "run",
+            "-o",
+            "frame variable",
+            "-o",
+            "quit",
+        ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
     )
 
     # We should see the 'a' and 'b' parameters from the add function
-    passed = ("a =" in result.stdout or "(int) a" in result.stdout) and \
-             ("b =" in result.stdout or "(int) b" in result.stdout)
+    passed = ("a =" in result.stdout or "(int) a" in result.stdout) and (
+        "b =" in result.stdout or "(int) b" in result.stdout
+    )
     print_test("Variables visible at breakpoint", passed, result.stdout[:400])
 
     # Check we stopped in the right function

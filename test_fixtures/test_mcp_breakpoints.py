@@ -54,19 +54,13 @@ async def test_function_breakpoint():
     print_header("Test: Function Name Breakpoint")
 
     # Test 1: Breakpoint on 'add' function
-    params = SetBreakpointInput(
-        executable=str(SIMPLE_EXE),
-        location="add"
-    )
+    params = SetBreakpointInput(executable=str(SIMPLE_EXE), location="add")
     result = await lldb_set_breakpoint(params)
     has_breakpoint = "Breakpoint" in result and ("add" in result or "1 location" in result.lower())
     print_test("Set breakpoint on 'add' function", has_breakpoint, result)
 
     # Test 2: Breakpoint on 'main' function
-    params = SetBreakpointInput(
-        executable=str(SIMPLE_EXE),
-        location="main"
-    )
+    params = SetBreakpointInput(executable=str(SIMPLE_EXE), location="main")
     result = await lldb_set_breakpoint(params)
     has_breakpoint = "Breakpoint" in result and ("main" in result or "1 location" in result.lower())
     print_test("Set breakpoint on 'main' function", has_breakpoint, result)
@@ -82,7 +76,7 @@ async def test_file_line_breakpoint():
     abs_path = str(FIXTURES_DIR / "simple.cpp")
     params = SetBreakpointInput(
         executable=str(SIMPLE_EXE),
-        location=f"{abs_path}:6"  # Line 6 in add() function
+        location=f"{abs_path}:6",  # Line 6 in add() function
     )
     result = await lldb_set_breakpoint(params)
     has_breakpoint = "Breakpoint" in result
@@ -92,7 +86,7 @@ async def test_file_line_breakpoint():
     params = SetBreakpointInput(
         executable=str(SIMPLE_EXE),
         location="simple.cpp:16",  # Line 16 in main()
-        working_dir=str(FIXTURES_DIR)
+        working_dir=str(FIXTURES_DIR),
     )
     result = await lldb_set_breakpoint(params)
     has_breakpoint = "Breakpoint" in result
@@ -102,7 +96,7 @@ async def test_file_line_breakpoint():
     abs_helper = str(FIXTURES_DIR / "multifile_helper.cpp")
     params = SetBreakpointInput(
         executable=str(MULTIFILE_EXE),
-        location=f"{abs_helper}:5"  # Line 5 in helper_double()
+        location=f"{abs_helper}:5",  # Line 5 in helper_double()
     )
     result = await lldb_set_breakpoint(params)
     has_breakpoint = "Breakpoint" in result
@@ -118,36 +112,30 @@ async def test_breakpoint_from_different_dirs():
     original_cwd = os.getcwd()
 
     try:
-        # Test 1: From /tmp
-        os.chdir("/tmp")
-        params = SetBreakpointInput(
-            executable=str(SIMPLE_EXE),
-            location="main"
-        )
+        import tempfile
+        tmp_dir = tempfile.gettempdir()
+
+        # Test 1: From temp dir
+        os.chdir(tmp_dir)
+        params = SetBreakpointInput(executable=str(SIMPLE_EXE), location="main")
         result = await lldb_set_breakpoint(params)
         passed_tmp = "Breakpoint" in result and "main" in result
-        print_test("Breakpoint from /tmp", passed_tmp, result)
+        print_test("Breakpoint from temp dir", passed_tmp, result)
 
         # Test 2: From home directory
         os.chdir(os.path.expanduser("~"))
-        params = SetBreakpointInput(
-            executable=str(SIMPLE_EXE),
-            location="add"
-        )
+        params = SetBreakpointInput(executable=str(SIMPLE_EXE), location="add")
         result = await lldb_set_breakpoint(params)
         passed_home = "Breakpoint" in result
         print_test("Breakpoint from home dir", passed_home, result)
 
         # Test 3: File:line from different directory
-        os.chdir("/tmp")
+        os.chdir(tmp_dir)
         abs_path = str(FIXTURES_DIR / "simple.cpp")
-        params = SetBreakpointInput(
-            executable=str(SIMPLE_EXE),
-            location=f"{abs_path}:6"
-        )
+        params = SetBreakpointInput(executable=str(SIMPLE_EXE), location=f"{abs_path}:6")
         result = await lldb_set_breakpoint(params)
         passed_fileline = "Breakpoint" in result
-        print_test("File:line breakpoint from /tmp", passed_fileline, result)
+        print_test("File:line breakpoint from temp dir", passed_fileline, result)
 
     finally:
         os.chdir(original_cwd)
@@ -160,11 +148,7 @@ async def test_run_with_breakpoints():
     print_header("Test: Run Program with Breakpoints")
 
     # Test 1: Run with function breakpoint
-    params = RunProgramInput(
-        executable=str(SIMPLE_EXE),
-        breakpoints=["main"],
-        stop_at_entry=True
-    )
+    params = RunProgramInput(executable=str(SIMPLE_EXE), breakpoints=["main"], stop_at_entry=True)
     result = await lldb_run(params)
     stopped_at_main = "main" in result.lower() or "frame" in result.lower()
     print_test("Run with breakpoint at main", stopped_at_main, result)
@@ -174,10 +158,12 @@ async def test_run_with_breakpoints():
     params = RunProgramInput(
         executable=str(SIMPLE_EXE),
         breakpoints=[f"{abs_path}:19"],  # Line with add() call
-        stop_at_entry=False
+        stop_at_entry=False,
     )
     result = await lldb_run(params)
-    has_output = "frame" in result.lower() or "backtrace" in result.lower() or "thread" in result.lower()
+    has_output = (
+        "frame" in result.lower() or "backtrace" in result.lower() or "thread" in result.lower()
+    )
     print_test("Run with file:line breakpoint", has_output, result)
 
     return stopped_at_main
@@ -187,12 +173,11 @@ async def test_examine_variables_at_breakpoint():
     """Test examining variables at a breakpoint."""
     print_header("Test: Examine Variables at Breakpoint")
 
-    params = ExamineVariablesInput(
-        executable=str(SIMPLE_EXE),
-        breakpoint="main"
-    )
+    params = ExamineVariablesInput(executable=str(SIMPLE_EXE), breakpoint="main")
     result = await lldb_examine_variables(params)
-    has_vars = "x" in result or "y" in result or "argc" in result or "frame variable" in result.lower()
+    has_vars = (
+        "x" in result or "y" in result or "argc" in result or "frame variable" in result.lower()
+    )
     print_test("Examine variables at main", has_vars, result)
 
     return has_vars
@@ -202,10 +187,7 @@ async def test_backtrace_at_breakpoint():
     """Test getting backtrace at a breakpoint."""
     print_header("Test: Backtrace at Breakpoint")
 
-    params = BacktraceInput(
-        executable=str(SIMPLE_EXE),
-        breakpoint="add"
-    )
+    params = BacktraceInput(executable=str(SIMPLE_EXE), breakpoint="add")
     result = await lldb_backtrace(params)
     has_backtrace = "frame" in result.lower() or "add" in result or "#0" in result
     print_test("Backtrace at 'add' function", has_backtrace, result)
@@ -249,11 +231,7 @@ async def test_conditional_breakpoint():
     """Test conditional breakpoint."""
     print_header("Test: Conditional Breakpoint")
 
-    params = SetBreakpointInput(
-        executable=str(SIMPLE_EXE),
-        location="add",
-        condition="a > 5"
-    )
+    params = SetBreakpointInput(executable=str(SIMPLE_EXE), location="add", condition="a > 5")
     result = await lldb_set_breakpoint(params)
     has_breakpoint = "Breakpoint" in result
     has_condition = "condition" in result.lower() or "a > 5" in result
